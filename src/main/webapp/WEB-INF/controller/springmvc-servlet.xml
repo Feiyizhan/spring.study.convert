@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"  
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/mvc     
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+  	 
+  	 
+  	<context:component-scan base-package="com.mmm.ewcstssd.controller"></context:component-scan>
+		<context:component-scan base-package="com.mmm.ewcslegacy.controller"></context:component-scan> 
+  	 
+  	<!--注册handler method -->   
+  	<mvc:annotation-driven>  
+        <mvc:message-converters> 
+         
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">  
+               <property name="supportedMediaTypes">
+		            <list>
+		                <value>application/json;charset=UTF-8</value>
+		                <value>text/plain;charset=UTF-8</value>
+		            </list>
+		       </property>  
+                <property name="objectMapper">  
+                    <bean class="com.fasterxml.jackson.databind.ObjectMapper">  
+                        <property name="dateFormat">  
+                            <bean class="java.text.SimpleDateFormat">  
+                                <constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" />  
+                            </bean>
+                        </property> 
+                        <property name="serializationInclusion">
+	                      <value type="com.fasterxml.jackson.annotation.JsonInclude.Include">NON_NULL</value>
+	                    </property> 
+                    </bean>  
+                </property>  
+            </bean>  
+            
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<property name="supportedMediaTypes">
+					<list>
+						<value>text/plain;charset=UTF-8</value>
+					</list>
+				</property>
+			</bean>
+   			
+        </mvc:message-converters>  
+    </mvc:annotation-driven>	
+  				
+	<!-- 返回增加前缀、后缀 -->
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/jsp" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	
+	<!--springmvc 附件上传 -->
+	 <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+         <property name="maxUploadSize" value="104857600" />
+         <property name="maxInMemorySize" value="4096" />
+         <property name="defaultEncoding" value="UTF-8"></property>
+    </bean>
+
+    <!-- 拦截器配置 -->
+    <mvc:interceptors>
+      <!-- 登录验证 -->
+      <mvc:interceptor>
+        <mvc:mapping path="/manage/**"/>
+        <mvc:exclude-mapping path="/resources/**"/>
+        <bean class="com.mmm.ewcstssd.interceptor.LoginInterceptor"/>
+      </mvc:interceptor>
+      
+    </mvc:interceptors>
+		
+</beans>
